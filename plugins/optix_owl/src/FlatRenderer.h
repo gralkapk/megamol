@@ -16,7 +16,7 @@
 #include "BaseRenderer.h"
 
 namespace megamol::optix_owl {
-class FlatRenderer : public BaseRenderer {
+class FlatRenderer : public BaseRenderer<geocalls::MultiParticleDataCall> {
 public:
     /**
      * Answer the name of this module.

@@ -16,7 +16,7 @@
 #include "BaseRenderer.h"
 
 namespace megamol::optix_owl {
-class TreeletsRenderer : public BaseRenderer {
+class TreeletsRenderer : public BaseRenderer<geocalls::MultiParticleDataCall> {
 public:
     /**
      * Answer the name of this module.

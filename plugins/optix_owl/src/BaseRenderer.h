@@ -13,6 +13,7 @@
 #include "framestate.h"
 
 namespace megamol::optix_owl {
+template <typename DC>
 class BaseRenderer : public mmstd_gl::Renderer3DModuleGL {
 public:
     /**
@@ -79,3 +80,5 @@ protected:
     core::view::Camera::PerspectiveParameters old_cam_intrinsics_;
 };
 } // namespace megamol::optix_owl
+
+#include <BaseRenderer.inl>

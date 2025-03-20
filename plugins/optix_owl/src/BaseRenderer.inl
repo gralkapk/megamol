@@ -1,4 +1,4 @@
-#include "BaseRenderer.h"
+//#include "BaseRenderer.h"
 
 #include "mmcore/param/BoolParam.h"
 #include "mmcore/param/FloatParam.h"
@@ -20,7 +20,8 @@
 namespace megamol::optix_owl {
 extern "C" const unsigned char raygenPrograms_ptx[];
 
-BaseRenderer::BaseRenderer()
+template <typename DC>
+BaseRenderer<DC>::BaseRenderer()
         : data_in_slot_("dataIn", "")
         , radius_slot_("radius", "")
         , rec_depth_slot_("rec_depth", "")
@@ -29,7 +30,7 @@ BaseRenderer::BaseRenderer()
         , dump_debug_info_slot_("debug::dump", "")
         , debug_rdf_slot_("debug::rdf", "")
         , debug_output_path_slot_("debug::outpath", "") {
-    data_in_slot_.SetCompatibleCall<geocalls::MultiParticleDataCallDescription>();
+    data_in_slot_.SetCompatibleCall<core::factories::CallAutoDescription<DC>>();
     MakeSlotAvailable(&data_in_slot_);
 
     radius_slot_ << new core::param::FloatParam(0.5f, std::numeric_limits<float>::min());
@@ -55,11 +56,13 @@ BaseRenderer::BaseRenderer()
     MakeSlotAvailable(&debug_output_path_slot_);
 }
 
-BaseRenderer::~BaseRenderer() {
+template<typename DC>
+BaseRenderer<DC>::~BaseRenderer() {
     this->Release();
 }
 
-bool BaseRenderer::create() {
+template<typename DC>
+bool BaseRenderer<DC>::create() {
     ctx_ = owlContextCreate(nullptr, 1);
     owlContextSetRayTypeCount(ctx_, 1);
 
@@ -91,7 +94,8 @@ bool BaseRenderer::create() {
     return true;
 }
 
-void BaseRenderer::release() {
+template<typename DC>
+void BaseRenderer<DC>::release() {
     owlBufferDestroy(particleBuffer_);
     owlBufferDestroy(accumBuffer_);
     owlBufferDestroy(colorBuffer_);
@@ -100,8 +104,9 @@ void BaseRenderer::release() {
     owlContextDestroy(ctx_);
 }
 
-bool BaseRenderer::Render(mmstd_gl::CallRender3DGL& call) {
-    auto in_data = data_in_slot_.CallAs<geocalls::MultiParticleDataCall>();
+template<typename DC>
+bool BaseRenderer<DC>::Render(mmstd_gl::CallRender3DGL& call) {
+    auto in_data = data_in_slot_.CallAs<DC>();
     if (in_data == nullptr)
         return false;
 
@@ -250,8 +255,9 @@ bool BaseRenderer::Render(mmstd_gl::CallRender3DGL& call) {
 }
    
 
-bool BaseRenderer::GetExtents(mmstd_gl::CallRender3DGL& call) {
-    auto in_data = data_in_slot_.CallAs<geocalls::MultiParticleDataCall>();
+template<typename DC>
+bool BaseRenderer<DC>::GetExtents(mmstd_gl::CallRender3DGL& call) {
+    auto in_data = data_in_slot_.CallAs<DC>();
     if (in_data == nullptr)
         return false;
 
@@ -265,7 +271,8 @@ bool BaseRenderer::GetExtents(mmstd_gl::CallRender3DGL& call) {
     return true;
 }
 
-void BaseRenderer::resizeFramebuffer(owl::common::vec2i const& dim) {
+template<typename DC>
+void BaseRenderer<DC>::resizeFramebuffer(owl::common::vec2i const& dim) {
     if (!accumBuffer_)
         accumBuffer_ = owlDeviceBufferCreate(ctx_, OWL_FLOAT4, dim.x * dim.y, nullptr);
     owlBufferResize(accumBuffer_, dim.x * dim.y);
