@@ -12,6 +12,8 @@
 
 #include "framestate.h"
 
+#include "BaseDataWrapper.h"
+
 namespace megamol::optix_owl {
 template <typename DC>
 class BaseRenderer : public mmstd_gl::Renderer3DModuleGL {
@@ -43,7 +45,11 @@ protected:
 
     void resizeFramebuffer(owl::common::vec2i const& dim);
 
-    virtual bool assertData(geocalls::MultiParticleDataCall const& call) = 0;
+    virtual bool assertData(DC const& call) = 0;
+
+    void setBDW(std::unique_ptr<BaseDataWrapper>&& wrapper) {
+        bdw_ = std::move(wrapper);
+    }
 
     core::CallerSlot data_in_slot_;
 
@@ -78,6 +84,8 @@ protected:
 
     core::view::Camera::Pose old_cam_pose_;
     core::view::Camera::PerspectiveParameters old_cam_intrinsics_;
+
+    std::unique_ptr<BaseDataWrapper> bdw_ = nullptr;
 };
 } // namespace megamol::optix_owl
 

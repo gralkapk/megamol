@@ -20,10 +20,14 @@
 
 #include <cuda_runtime.h>
 
+#include "MultiParticleDataWrapper.h"
+
 namespace megamol::optix_owl {
 extern "C" const unsigned char bvhPrograms_ptx[];
 
-BVHRenderer::BVHRenderer() {}
+BVHRenderer::BVHRenderer() {
+    setBDW(std::make_unique<MultiParticleDataWrapper<BVHRenderer>>(this));
+}
 
 BVHRenderer::~BVHRenderer() {
     this->Release();

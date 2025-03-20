@@ -110,11 +110,13 @@ bool BaseRenderer<DC>::Render(mmstd_gl::CallRender3DGL& call) {
     if (in_data == nullptr)
         return false;
 
-    in_data->SetFrameID(call.Time());
+    if (!bdw_->CheckData(call, in_data))
+        return false;
+    /*in_data->SetFrameID(call.Time());
     if (!(*in_data)(1))
         return false;
     if (!(*in_data)(0))
-        return false;
+        return false;*/
 
     if (current_fb_size_ != owl::common::vec2i(call.GetViewResolution().x, call.GetViewResolution().y)) {
         resizeFramebuffer(owl::common::vec2i(call.GetViewResolution().x, call.GetViewResolution().y));
@@ -171,11 +173,16 @@ bool BaseRenderer<DC>::Render(mmstd_gl::CallRender3DGL& call) {
         old_cam_intrinsics_ = cam_intrinsics;
     }
 
-    if (in_data->FrameID() != frame_id_ || in_data->DataHash() != in_data_hash_ || data_param_is_dirty()) {
-        if (!assertData(*in_data))
+    //if (in_data->FrameID() != frame_id_ || in_data->DataHash() != in_data_hash_ || data_param_is_dirty()) {
+    if (bdw_->HasDataUpdate(in_data, frame_id_, in_data_hash_) || data_param_is_dirty()) {
+        if (!bdw_->AssertData(in_data))
+            return false;
+        frame_id_ = bdw_->GetFrameID(in_data);
+        in_data_hash_ = bdw_->GetDataHash(in_data);
+        /*if (!assertData(*in_data))
             return false;
         frame_id_ = in_data->FrameID();
-        in_data_hash_ = in_data->DataHash();
+        in_data_hash_ = in_data->DataHash();*/
         data_param_reset_dirty();
 
         framestate_.accumID = 0;
@@ -261,14 +268,14 @@ bool BaseRenderer<DC>::GetExtents(mmstd_gl::CallRender3DGL& call) {
     if (in_data == nullptr)
         return false;
 
-    in_data->SetFrameID(call.Time());
+    /*in_data->SetFrameID(call.Time());
     if (!(*in_data)(1))
         return false;
 
     call.AccessBoundingBoxes() = in_data->GetBoundingBoxes();
-    call.SetTimeFramesCount(in_data->FrameCount());
+    call.SetTimeFramesCount(in_data->FrameCount());*/
 
-    return true;
+    return bdw_->CheckExtent(call, in_data);
 }
 
 template<typename DC>
