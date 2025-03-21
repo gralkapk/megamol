@@ -18,7 +18,7 @@ OPTIX_CLOSEST_HIT_PROGRAM(mesh_ch)() {
     const int primID = optixGetPrimitiveIndex();
     PerRayData& prd = owl::getPRD<PerRayData>();
     const auto& self = owl::getProgramData<MeshGeomData>();
-    prd.particleID = primID;
+    prd.primID = primID;
     prd.t = optixGetRayTmax();
     //prd.pos = self.particleBuffer[primID].pos;
 }

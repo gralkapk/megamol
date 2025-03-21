@@ -6,9 +6,9 @@ namespace megamol {
 namespace optix_owl {
 namespace device {
 struct PerRayData {
-    int particleID;
+    int primID;
     float t;
-    owl::vec3f pos;
+    owl::vec3f Ng;
 };
 } // namespace device
 } // namespace optix_owl

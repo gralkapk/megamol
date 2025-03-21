@@ -68,23 +68,23 @@ inline __device__ vec3f traceRay(const RayGenData& self, owl::Ray& ray, Random& 
 
     /* iterative version of recursion, up to depth 50 */
     for (int depth = 0; true; depth++) {
-        prd.particleID = -1;
+        prd.primID = -1;
 
         owl::traceRay(/*accel to trace against*/ self.world,
             /*the ray to trace*/ ray,
             // /*numRayTypes*/1,
             /*prd*/ prd, OPTIX_RAY_FLAG_DISABLE_ANYHIT);
-        if (prd.particleID == -1) {
+        if (prd.primID == -1) {
             // miss...
             return attenuation * ambientLight;
         }
 
         //const Particle particle = self.particleBuffer[prd.particleID];
-        vec3f N = (ray.origin + prd.t * ray.direction) - prd.pos;
+        //vec3f N = (ray.origin + prd.t * ray.direction) - prd.pos;
         // printf("normal %f %f %f\n",N.x,N.y,N.z);
-        if (dot(N, (vec3f) ray.direction) > 0.f)
-            N = -N;
-        N = normalize(N);
+        if (dot(prd.Ng, (vec3f) ray.direction) > 0.f)
+            prd.Ng = -prd.Ng;
+        prd.Ng = normalize(prd.Ng);
 
         // hardcoded albedo for now:
 #if COLOR_CODING
@@ -99,7 +99,7 @@ inline __device__ vec3f traceRay(const RayGenData& self, owl::Ray& ray, Random& 
 #endif
         // hard-coded for the 'no path tracing' case:
         if (self.rec_depth == 0)
-            return albedo * (.2f + .6f * fabsf(dot(N, (vec3f) ray.direction)));
+            return albedo * (.2f + .6f * fabsf(dot(prd.Ng, (vec3f) ray.direction)));
 
 
         attenuation *= albedo;
@@ -110,7 +110,7 @@ inline __device__ vec3f traceRay(const RayGenData& self, owl::Ray& ray, Random& 
         }
 
         const vec3f scattered_origin = ray.origin + prd.t * ray.direction;
-        const vec3f scattered_direction = N + random_in_unit_sphere(rnd);
+        const vec3f scattered_direction = prd.Ng + random_in_unit_sphere(rnd);
         ray = owl::Ray(/* origin   : */ scattered_origin,
             /* direction: */ safe_normalize(scattered_direction),
             /* tmin     : */ 1e-3f,

@@ -31,9 +31,10 @@ OPTIX_CLOSEST_HIT_PROGRAM(bvh_ch)() {
     const int primID = optixGetPrimitiveIndex();
     PerRayData& prd = owl::getPRD<PerRayData>();
     const auto& self = owl::getProgramData<BVHGeomData>();
-    prd.particleID = primID;
+    prd.primID = primID;
     prd.t = optixGetRayTmax();
-    prd.pos = self.particleBuffer[primID].pos;
+    owl::Ray ray(optixGetWorldRayOrigin(), optixGetWorldRayDirection(), optixGetRayTmin(), optixGetRayTmax());
+    prd.Ng = (ray.origin + prd.t * ray.direction) - self.particleBuffer[primID].pos;
 }
 
 OPTIX_BOUNDS_PROGRAM(bvh_bounds)(const void* geomData, box3f& primBounds, const int primID) {
