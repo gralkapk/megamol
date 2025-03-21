@@ -51,13 +51,13 @@ public:
 
     virtual ~MeshRenderer();
 
+    bool assertData(mesh::CallMesh const& call) override;
 protected:
     bool create() override;
 
     void release() override;
 
 private:
-    bool assertData(mesh::CallMesh const& call) override;
 
     bool data_param_is_dirty() override;
     void data_param_reset_dirty() override;

@@ -22,10 +22,14 @@
 
 #include <cuda_runtime.h>
 
+#include "MeshDataWrapper.h"
+
 namespace megamol::optix_owl {
 extern "C" const unsigned char meshPrograms_ptx[];
 
-MeshRenderer::MeshRenderer() {}
+MeshRenderer::MeshRenderer() {
+    setBDW(std::make_unique<MeshDataWrapper<MeshRenderer>>(this));
+}
 
 MeshRenderer::~MeshRenderer() {
     this->Release();
@@ -42,10 +46,10 @@ bool MeshRenderer::create() {
         {/* sentinel to mark end of list */}
     };
 
-    OWLGeomType allPKDType = owlGeomTypeCreate(ctx_, OWL_TRIANGLES, sizeof(device::MeshGeomData), allPKDVars, -1);
+    tri_type_ = owlGeomTypeCreate(ctx_, OWL_TRIANGLES, sizeof(device::MeshGeomData), allPKDVars, -1);
     //owlGeomTypeSetBoundsProg(allPKDType, pkd_module_, "bvh_bounds");
     //owlGeomTypeSetIntersectProg(allPKDType, 0, pkd_module_, "bvh_intersect");
-    owlGeomTypeSetClosestHit(allPKDType, 0, pkd_module_, "mesh_ch");
+    owlGeomTypeSetClosestHit(tri_type_, 0, pkd_module_, "mesh_ch");
 
     return ret;
 }

@@ -28,16 +28,22 @@ public:
 
     bool CheckData(mmstd_gl::CallRender3DGL& cr, void* dc) override {
         auto dcp = reinterpret_cast<mesh::CallMesh*>(dc);
-        dcp->getMetaData().m_frame_ID = cr.Time();
+        auto meta = dcp->getMetaData();
+        meta.m_frame_ID = cr.Time();
+        dcp->setMetaData(meta);
         if (!(*dcp)(1))
             return false;
         if (!(*dcp)(0))
             return false;
+
+        return true;
     }
 
     bool CheckExtent(mmstd_gl::CallRender3DGL& cr, void* dc) override {
         auto dcp = reinterpret_cast<mesh::CallMesh*>(dc);
-        dcp->getMetaData().m_frame_ID = cr.Time();
+        auto meta = dcp->getMetaData();
+        meta.m_frame_ID = cr.Time();
+        dcp->setMetaData(meta);
         if (!(*dcp)(1))
             return false;
 
@@ -49,7 +55,7 @@ public:
 
     bool AssertData(void* dc) override {
         auto dcp = reinterpret_cast<mesh::CallMesh*>(dc);
-        return that.assertData(*dcp);
+        return that->assertData(*dcp);
     }
 
 private:
