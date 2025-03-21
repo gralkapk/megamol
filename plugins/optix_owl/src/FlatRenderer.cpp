@@ -23,10 +23,13 @@
 
 #include <cuda_runtime.h>
 
+#include "MultiParticleDataWrapper.h"
+
 namespace megamol::optix_owl {
 extern "C" const unsigned char treeletsPrograms_ptx[];
 
 FlatRenderer::FlatRenderer() : threshold_slot_("threshold", "") {
+    setBDW(std::make_unique<MultiParticleDataWrapper<FlatRenderer>>(this));
     threshold_slot_ << new core::param::IntParam(2048, 16, 2048);
     MakeSlotAvailable(&threshold_slot_);
 }

@@ -16,10 +16,14 @@
 
 #include <cuda_runtime.h>
 
+#include "MultiParticleDataWrapper.h"
+
 namespace megamol::optix_owl {
 extern "C" const unsigned char pkdPrograms_ptx[];
 
-PKDRenderer::PKDRenderer() {}
+PKDRenderer::PKDRenderer() {
+    setBDW(std::make_unique<MultiParticleDataWrapper<PKDRenderer>>(this));
+}
 
 PKDRenderer::~PKDRenderer() {
     this->Release();
