@@ -33,6 +33,8 @@ public:
             return false;
         if (!(*dcp) (0))
             return false;
+
+        return true;
     }
 
     bool CheckExtent(mmstd_gl::CallRender3DGL& cr, void* dc) override {
