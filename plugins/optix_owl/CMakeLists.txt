@@ -12,6 +12,7 @@ megamol_plugin(optix_owl
     mmstd
     mmstd_gl
     geometry_calls
+    mesh
     # plugin1
     # plugin2
   )
@@ -60,12 +61,21 @@ if (optix_owl_PLUGIN_ENABLED)
     SOURCES
       cuda_resources/bvhPrograms.cu
   )
+  embed_ptx(
+    OUTPUT_TARGET
+      mesh-ptx
+    PTX_LINK_LIBRARIES
+      owl::owl
+    SOURCES
+      cuda_resources/meshPrograms.cu
+  )
 
   target_link_libraries(optix_owl PRIVATE
     $<TARGET_OBJECTS:raygen-ptx>
     $<TARGET_OBJECTS:pkd-ptx>
     $<TARGET_OBJECTS:treelets-ptx>
-    $<TARGET_OBJECTS:bvh-ptx>)
+    $<TARGET_OBJECTS:bvh-ptx>
+    $<TARGET_OBJECTS:mesh-ptx>)
   target_include_directories(optix_owl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/cuda_resources")
 
 endif ()

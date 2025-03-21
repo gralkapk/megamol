@@ -73,7 +73,7 @@ protected:
     OWLBuffer colorBuffer_ = 0;
     OWLBuffer particleBuffer_ = 0;
 
-    OWLGroup world_;
+    OWLGroup world_ = 0;
 
     owl::common::vec2i current_fb_size_;
 
