@@ -96,10 +96,17 @@ bool BaseRenderer<DC>::create() {
 
 template<typename DC>
 void BaseRenderer<DC>::release() {
-    owlBufferDestroy(particleBuffer_);
-    owlBufferDestroy(accumBuffer_);
-    owlBufferDestroy(colorBuffer_);
-    owlBufferDestroy(frameStateBuffer_);
+    if (particleBuffer_)
+        owlBufferDestroy(particleBuffer_);
+    if (accumBuffer_)
+        owlBufferDestroy(accumBuffer_);
+    if (colorBuffer_)
+        owlBufferDestroy(colorBuffer_);
+    if (frameStateBuffer_)
+        owlBufferDestroy(frameStateBuffer_);
+    if (world_)
+        owlGroupRelease(world_);
+    owlRayGenRelease(raygen_);
     owlModuleRelease(raygen_module_);
     owlContextDestroy(ctx_);
 }

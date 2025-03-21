@@ -56,6 +56,18 @@ bool MeshRenderer::create() {
 
 void MeshRenderer::release() {
     owlModuleRelease(pkd_module_);
+    for (auto& vb : vertex_buffers_) {
+        owlBufferDestroy(vb);
+    }
+    vertex_buffers_.clear();
+    for (auto& ib : index_buffers_) {
+        owlBufferDestroy(ib);
+    }
+    index_buffers_.clear();
+    for (auto& g : geoms_) {
+        owlGeomRelease(g);
+    }
+    geoms_.clear();
     BaseRenderer::release();
 }
 
@@ -71,10 +83,10 @@ bool MeshRenderer::assertData(mesh::CallMesh const& call) {
         owlBufferDestroy(vb);
     }
     vertex_buffers_.clear();
-    index_buffers_.clear();
     for (auto& ib : index_buffers_) {
         owlBufferDestroy(ib);
     }
+    index_buffers_.clear();
     for (auto& g : geoms_) {
         owlGeomRelease(g);
     }
@@ -101,6 +113,7 @@ bool MeshRenderer::assertData(mesh::CallMesh const& call) {
                 owlGeomSetBuffer(geom, "vertex", vertex_buffers_.back());
                 owlGeomSetBuffer(geom, "index", index_buffers_.back());
                 geoms_.push_back(geom);
+            } else {
                 break;
             }
         }
