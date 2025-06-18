@@ -173,7 +173,7 @@ MM_OPTIX_RAYGEN_KERNEL(raygen_program)() {
         col += traceRay(self, ray, rnd_owl, prd, bg, fs->maxBounces);
         depth = fminf(depth, prd.ray_depth);
     }
-
+    col *= fs->intensity;
     col /= (float) fs->samplesPerPixel;
     // col.w = frame_idx + 1;
     //++col.w;
