@@ -25,6 +25,8 @@ if (optix_owl_PLUGIN_ENABLED)
 
   target_link_libraries(optix_owl PRIVATE owl::owl)
 
+  set_target_properties(optix_owl PROPERTIES CUDA_ARCHITECTURES "75")
+
   embed_ptx(
     OUTPUT_TARGET
       raygen-ptx

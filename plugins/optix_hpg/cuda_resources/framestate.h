@@ -28,6 +28,8 @@ struct FrameState {
     glm::vec3 depth_params;
 
     float intensity;
+
+    glm::vec3 light_dir;
 };
 } // namespace device
 } // namespace optix_hpg

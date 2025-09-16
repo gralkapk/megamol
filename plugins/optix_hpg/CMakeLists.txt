@@ -20,6 +20,8 @@ if (optix_hpg_PLUGIN_ENABLED)
 
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
+  set(CMAKE_CUDA_ARCHITECTURES "75")
+
   find_package(CUDAToolkit)
   include(configure_optix)
 

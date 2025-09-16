@@ -3,6 +3,7 @@
 #include "mmcore/param/BoolParam.h"
 #include "mmcore/param/FloatParam.h"
 #include "mmcore/param/IntParam.h"
+#include "mmcore/param/Vector3fParam.h"
 
 #include "raygen.h"
 
@@ -24,7 +25,9 @@ megamol::optix_hpg::Renderer::Renderer()
         , spp_slot_("spp", "")
         , max_bounces_slot_("max bounces", "")
         , accumulate_slot_("accumulate", "")
-        , intensity_slot_("intensity", "") {
+        , intensity_slot_("intensity", "")
+        , light_cam_dir_("light::cam", "")
+        , light_dir_("light::dir","") {
     spp_slot_ << new core::param::IntParam(1, 1);
     MakeSlotAvailable(&spp_slot_);
 
@@ -36,6 +39,14 @@ megamol::optix_hpg::Renderer::Renderer()
 
     intensity_slot_ << new core::param::FloatParam(1.0f, std::numeric_limits<float>::min());
     MakeSlotAvailable(&intensity_slot_);
+
+    light_cam_dir_ << new core::param::BoolParam(true);
+    MakeSlotAvailable(&light_cam_dir_);
+
+    light_dir_ << new core::param::Vector3fParam(vislib::math::Vector<float, 3>(-0.25f, -0.5f, -0.75f),
+        vislib::math::Vector<float, 3>(-1.f, -1.f, -1.f), vislib::math::Vector<float, 3>(1.f, 1.f, 1.f));
+    light_dir_.Parameter()->SetGUIPresentation(core::param::AbstractParamPresentation::Presentation::Direction);
+    MakeSlotAvailable(&light_dir_);
 }
 
 
@@ -102,6 +113,14 @@ void megamol::optix_hpg::Renderer::on_cam_pose_change(core::view::Camera::Pose c
     auto const curCamRight = glm::cross(cam_pose.direction, cam_pose.up);
     frame_state.camera_right = glm::vec3(curCamRight.x, curCamRight.y, curCamRight.z);
 
+    if (light_cam_dir_.Param<core::param::BoolParam>()->Value()) {
+        frame_state.light_dir = glm::normalize(frame_state.camera_front);
+    } else {
+        auto const& light_d = light_dir_.Param<core::param::Vector3fParam>()->Value();
+        auto const ld = glm::vec3(light_d.GetX(), light_d.GetY(), light_d.GetZ());
+        frame_state.light_dir = glm::normalize(ld);
+    }
+
     frame_state.frameIdx = 0;
 }
 
@@ -162,6 +181,14 @@ void megamol::optix_hpg::Renderer::on_change_parameters() {
     frame_state.accumulate = accumulate_slot_.Param<core::param::BoolParam>()->Value();
 
     frame_state.intensity = intensity_slot_.Param<core::param::FloatParam>()->Value();
+
+    if (light_cam_dir_.Param<core::param::BoolParam>()->Value()) {
+        frame_state.light_dir = glm::normalize(frame_state.camera_front);
+    } else {
+        auto const& light_d = light_dir_.Param<core::param::Vector3fParam>()->Value();
+        auto const ld = glm::vec3(light_d.GetX(), light_d.GetY(), light_d.GetZ());
+        frame_state.light_dir = glm::normalize(ld);
+    }
 
     frame_state.frameIdx = 0;
 }

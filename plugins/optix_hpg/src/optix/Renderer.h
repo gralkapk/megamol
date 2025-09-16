@@ -84,6 +84,10 @@ private:
 
     core::param::ParamSlot intensity_slot_;
 
+    core::param::ParamSlot light_cam_dir_;
+
+    core::param::ParamSlot light_dir_;
+
     SBTRecord<device::RayGenData> sbt_raygen_record_;
 
     std::array<SBTRecord<device::MissData>, 2> sbt_miss_records_;

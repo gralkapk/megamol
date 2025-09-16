@@ -77,7 +77,7 @@ namespace optix_hpg {
     }
 
         inline __device__ glm::vec4 traceRay(
-            const RayGenData& self, Ray& ray, unsigned int& seed /*, Random& rnd*/, PerRayData& prd, glm::vec4& bg, int maxBounces) {
+            const RayGenData& self, Ray& ray, unsigned int& seed /*, Random& rnd*/, PerRayData& prd, glm::vec4& bg, int maxBounces, glm::vec3 const& ld) {
 
             unsigned int p0 = 0;
             unsigned int p1 = 0;
@@ -138,9 +138,10 @@ namespace optix_hpg {
                 N = glm::normalize(N);
 
                 if (maxBounces == 0) {
-                    return glm::vec4(prd.albedo * (.2f + .6f * fabsf(glm::dot(N, ray.direction))), 1.0f);
+                    return glm::vec4(prd.albedo * (.2f + .6f * fabsf(glm::dot(N, ld))), 1.0f);
                 }
 
+                //col *= (prd.albedo * fabsf(glm::dot(N, ld)))+glm::vec3(0.2f);
                 col *= prd.albedo;
 
                 if (depth >= maxBounces)
@@ -243,10 +244,11 @@ namespace optix_hpg {
                 /*float u = -fs->rw + (fs->rw + fs->rw) * float(pixelID.x) / self.fbSize.x;
                 float v = -(fs->th + (-fs->th - fs->th) * float(pixelID.y) / self.fbSize.y);*/
                 auto ray = generateRay(*fs, u, v);
-                col += traceRay(self, ray, seed /*, rnd*/, prd, bg, fs->maxBounces);
+                col += traceRay(self, ray, seed /*, rnd*/, prd, bg, fs->maxBounces, fs->light_dir);
                 depth = fminf(depth, prd.ray_depth);
             } while (--i);
             #endif
+            col *= fs->intensity;
             col /= (float) fs->samplesPerPixel;
             // col.w = frame_idx + 1;
             //++col.w;
