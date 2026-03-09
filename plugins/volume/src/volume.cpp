@@ -8,6 +8,7 @@
 #include "mmcore/factories/PluginRegister.h"
 
 #include "BuckyBall.h"
+#include "CylindricalVolumeReader.h"
 #include "DatRawWriter.h"
 #include "DifferenceVolume.h"
 #include "VolumetricDataSource.h"
@@ -18,7 +19,7 @@ class VolumePluginInstance : public megamol::core::factories::AbstractPluginInst
 
 public:
     VolumePluginInstance()
-            : megamol::core::factories::AbstractPluginInstance("volume", "Provides modules for volume rendering"){};
+            : megamol::core::factories::AbstractPluginInstance("volume", "Provides modules for volume rendering") {};
 
     ~VolumePluginInstance() override = default;
 
@@ -30,6 +31,7 @@ public:
         this->module_descriptions.RegisterAutoDescription<megamol::volume::DatRawWriter>();
         this->module_descriptions.RegisterAutoDescription<megamol::volume::DifferenceVolume>();
         this->module_descriptions.RegisterAutoDescription<megamol::volume::VolumetricDataSource>();
+        this->module_descriptions.RegisterAutoDescription<megamol::volume::CylindricalVolumeReader>();
 
         // register calls
     }
