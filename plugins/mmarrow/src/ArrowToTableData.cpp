@@ -95,6 +95,32 @@ bool isArithmeticType(std::shared_ptr<arrow::DataType> const& type) {
     return arrow::is_integer(type->id()) || arrow::is_floating(type->id());
 }
 
+std::pair<float, float> find_non_nan_minmax(std::vector<float> const& vec) {
+    if (vec.empty()) {
+        throw std::runtime_error("Cannot find min/max of an empty vector!");
+    }
+    auto is_not_nan = [](float v) { return !std::isnan(v); };
+    auto first_valid = std::find_if(vec.begin(), vec.end(), is_not_nan);
+
+    if (first_valid == vec.end()) {
+        // All values are NaN
+        float nan = std::numeric_limits<float>::quiet_NaN();
+        return {nan, nan};
+    }
+
+    float min_val = *first_valid;
+    float max_val = *first_valid;
+    for (auto it = first_valid + 1; it != vec.end(); ++it) {
+        if (!std::isnan(*it)) {
+            if (*it < min_val)
+                min_val = *it;
+            if (*it > max_val)
+                max_val = *it;
+        }
+    }
+    return {min_val, max_val};
+}
+
 bool ArrowToTableData::assertData(std::shared_ptr<ArrowDataCall::DataStruct> const& data) {
     auto const& table = data->table_;
 
@@ -142,7 +168,7 @@ bool ArrowToTableData::assertData(std::shared_ptr<ArrowDataCall::DataStruct> con
     }
 
     for (size_t c = 0; c < columns_.size(); ++c) {
-        auto min_max_el = std::minmax_element(column_storage[c].begin(), column_storage[c].end(), [](float a, float b) {
+        /*auto min_max_el = std::minmax_element(column_storage[c].begin(), column_storage[c].end(), [](float a, float b) {
             if (std::isnan(a)) {
                 return false;
             }
@@ -150,9 +176,10 @@ bool ArrowToTableData::assertData(std::shared_ptr<ArrowDataCall::DataStruct> con
                 return true;
             }
             return a < b;
-        });
-        columns_[c].SetMinimumValue(*min_max_el.first);
-        columns_[c].SetMaximumValue(*min_max_el.second);
+        });*/
+        auto [min_val, max_val] = find_non_nan_minmax(column_storage[c]);
+        columns_[c].SetMinimumValue(min_val);
+        columns_[c].SetMaximumValue(max_val);
         columns_[c].SetType(datatools::table::TableDataCall::ColumnType::QUANTITATIVE);
     }
 
