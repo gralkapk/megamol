@@ -19,7 +19,8 @@ ArrowToTableData::ArrowToTableData()
         : arrow_data_in_{"arrowDataIn", ""}
         , table_data_out_{"tableDataOut", ""}
         , in_data_hash_{0}
-        , out_data_hash_{0} {
+        , out_data_hash_{0}
+        , frame_id_{0} {
     arrow_data_in_.SetCompatibleCall<ArrowDataCallDescription>();
     MakeSlotAvailable(&arrow_data_in_);
 
@@ -52,23 +53,25 @@ bool ArrowToTableData::getDataCallback(core::Call& caller) {
             return false;
         }
 
+        arrow_call->FrameID(table_call->GetFrameID());
         if (!(*arrow_call)(0)) {
             return false;
         }
 
         auto data = arrow_call->Data();
-        if (in_data_hash_ != data->hash_) {
+        if (in_data_hash_ != data->hash_ || frame_id_ != data->frame_id_) {
             // process data
             if (!assertData(data)) {
                 return false;
             }
             in_data_hash_ = data->hash_;
+            frame_id_ = data->frame_id_;
             ++out_data_hash_;
         }
         table_call->Set(columns_.size(), values_.size() / columns_.size(), columns_.data(), values_.data());
         table_call->SetDataHash(out_data_hash_);
-        table_call->SetFrameID(0);
-        table_call->SetFrameCount(1);
+        table_call->SetFrameID(frame_id_);
+        table_call->SetFrameCount(arrow_call->FrameCount());
     } catch (...) {
         return false;
     }
@@ -78,13 +81,22 @@ bool ArrowToTableData::getDataCallback(core::Call& caller) {
 
 bool ArrowToTableData::getHashCallback(core::Call& caller) {
     try {
+        auto arrow_call = arrow_data_in_.CallAs<ArrowDataCall>();
+        if (!arrow_call) {
+            return false;
+        }
+
         auto table_call = dynamic_cast<datatools::table::TableDataCall*>(&caller);
         if (!table_call) {
             return false;
         }
+
+        if (!(*arrow_call)(1)) {
+            return false;
+        }
+
         table_call->SetDataHash(out_data_hash_);
-        table_call->SetFrameID(0);
-        table_call->SetFrameCount(1);
+        table_call->SetFrameCount(arrow_call->FrameCount());
     } catch (...) {
         return false;
     }

@@ -51,15 +51,22 @@ private:
     bool filenameChanged(core::param::ParamSlot& slot);
 
     bool getDataCallback(core::Call& caller);
+    bool getFrameCountCallback(core::Call& caller);
+
+    bool loadFile(std::filesystem::path const& path);
 
     //bool assertData();
 
     core::CalleeSlot get_data_slot_;
 
     core::param::ParamSlot filename_slot_;
+    core::param::ParamSlot pattern_slot_;
     core::param::ParamSlot mode_slot_;
     core::param::ParamSlot remote_slot_;
 
     std::shared_ptr<ArrowDataCall::DataStruct> data_;
+
+    std::uint64_t data_hash_;
+    std::vector<std::filesystem::path> files_;
 };
 } // namespace megamol::mmarrow

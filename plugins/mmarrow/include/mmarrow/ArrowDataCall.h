@@ -22,6 +22,8 @@ public:
     struct DataStruct {
         std::shared_ptr<arrow::Table> table_;
         std::uint64_t hash_;
+        std::uint64_t frame_id_;
+        DataStruct() : table_{nullptr}, hash_{0}, frame_id_{0} {}
     };
 
     static const char* ClassName() {
@@ -33,13 +35,15 @@ public:
     }
 
     static unsigned int FunctionCount() {
-        return 1;
+        return 2;
     }
 
     static const char* FunctionName(unsigned int idx) {
         switch (idx) {
         case 0:
             return "GetData";
+        case 1:
+            return "GetFrameCount";
         }
         return nullptr;
     }
@@ -55,8 +59,26 @@ public:
         data_ = data;
     }
 
+    std::uint64_t FrameCount() const {
+        return frame_count_;
+    }
+
+    void FrameCount(std::uint64_t frame_count) {
+        frame_count_ = frame_count;
+    }
+
+    std::uint64_t FrameID() const {
+        return frame_id_;
+    }
+
+    void FrameID(std::uint64_t frame_id) {
+        frame_id_ = frame_id;
+    }
+
 private:
-    std::shared_ptr<DataStruct> data_;
+    std::shared_ptr<DataStruct> data_ = nullptr;
+    std::uint64_t frame_count_ = 0;
+    std::uint64_t frame_id_ = 0;
 };
 
 typedef core::factories::CallAutoDescription<ArrowDataCall> ArrowDataCallDescription;

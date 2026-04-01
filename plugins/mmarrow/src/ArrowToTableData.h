@@ -48,6 +48,8 @@ private:
     std::uint64_t in_data_hash_;
     std::uint64_t out_data_hash_;
 
+    std::uint64_t frame_id_;
+
     std::vector<datatools::table::TableDataCall::ColumnInfo> columns_;
     std::vector<float> values_;
 };
